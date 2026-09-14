@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#090d16" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="50%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background with rounded corners -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect width="512" height="512" rx="112" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="4" />
+
+  <!-- Outer ambient ring -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#glowGrad)" stroke-width="4" opacity="0.2" stroke-dasharray="12 8" />
+
+  <!-- Central Musical Note & Shuffle Arrows Motif -->
+  <g transform="translate(100, 96)">
+    <!-- Shuffle path 1: top left to bottom right with arrow -->
+    <path d="M 40 70 L 110 70 C 170 70 180 250 240 250 L 272 250" fill="none" stroke="url(#glowGrad)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+    <!-- Arrowhead 1 -->
+    <path d="M 252 225 L 284 250 L 252 275" fill="none" stroke="url(#glowGrad)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Shuffle path 2: bottom left to top right with arrow -->
+    <path d="M 40 250 L 110 250 C 140 250 156 180 175 140" fill="none" stroke="url(#glowGrad)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 205 95 C 216 78 228 70 240 70 L 272 70" fill="none" stroke="url(#glowGrad)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+    <!-- Arrowhead 2 -->
+    <path d="M 252 45 L 284 70 L 252 95" fill="none" stroke="url(#glowGrad)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Center Music Beamed Note Glowing Accent -->
+    <g transform="translate(68, 80) scale(0.65)" opacity="0.95">
+      <circle cx="90" cy="180" r="32" fill="url(#glowGrad)" />
+      <circle cx="230" cy="150" r="32" fill="url(#glowGrad)" />
+      <rect x="110" y="50" width="16" height="130" fill="url(#glowGrad)" rx="6" />
+      <rect x="250" y="20" width="16" height="130" fill="url(#glowGrad)" rx="6" />
+      <polygon points="110,50 266,20 266,48 110,78" fill="url(#glowGrad)" />
+    </g>
+  </g>
+</svg>

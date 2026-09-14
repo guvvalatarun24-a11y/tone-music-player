@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  --bg-app: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --bg-card-subtle: #f8fafc;
+  --bg-surface: #f1f5f9;
+  --bg-input: #ffffff;
+  --bg-header: rgba(248, 250, 252, 0.88);
+  --bg-nav: rgba(255, 255, 255, 0.92);
+  --bg-modal: #ffffff;
+  --bg-popover: #ffffff;
+  --bg-overlay: rgba(15, 23, 42, 0.65);
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+  
+  --border-main: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  
+  --accent: #10b981;
+  --accent-text: #059669;
+  --accent-subtle: rgba(16, 185, 129, 0.12);
+  --accent-border: rgba(16, 185, 129, 0.3);
+
+  --btn-secondary-bg: #f1f5f9;
+  --btn-secondary-hover: #e2e8f0;
+  --btn-secondary-text: #1e293b;
+  --btn-secondary-border: #cbd5e1;
+
+  --waveform-bg: #f1f5f9;
+  --waveform-center: rgba(0, 0, 0, 0.08);
+}
+
+:root.dark,
+.dark {
+  color-scheme: dark;
+  --bg-app: #020617;
+  --bg-card: #0f172a;
+  --bg-card-hover: #1e293b;
+  --bg-card-subtle: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-input: rgba(15, 23, 42, 0.8);
+  --bg-header: rgba(2, 6, 23, 0.85);
+  --bg-nav: rgba(2, 6, 23, 0.92);
+  --bg-modal: #0f172a;
+  --bg-popover: #0f172a;
+  --bg-overlay: rgba(0, 0, 0, 0.8);
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+  
+  --border-main: #1e293b;
+  --border-subtle: #0f172a;
+  
+  --accent: #10b981;
+  --accent-text: #34d399;
+  --accent-subtle: rgba(16, 185, 129, 0.15);
+  --accent-border: rgba(16, 185, 129, 0.35);
+
+  --btn-secondary-bg: #1e293b;
+  --btn-secondary-hover: #334155;
+  --btn-secondary-text: #f1f5f9;
+  --btn-secondary-border: #334155;
+
+  --waveform-bg: #090d16;
+  --waveform-center: rgba(255, 255, 255, 0.08);
+}
+
+@theme {
+  --color-theme-app: var(--bg-app);
+  --color-theme-card: var(--bg-card);
+  --color-theme-card-hover: var(--bg-card-hover);
+  --color-theme-card-subtle: var(--bg-card-subtle);
+  --color-theme-surface: var(--bg-surface);
+  --color-theme-input: var(--bg-input);
+  --color-theme-modal: var(--bg-modal);
+  --color-theme-popover: var(--bg-popover);
+  --color-theme-main: var(--text-main);
+  --color-theme-muted: var(--text-muted);
+  --color-theme-subtle: var(--text-subtle);
+  --color-theme-border: var(--border-main);
+  --color-theme-border-subtle: var(--border-subtle);
+  --color-theme-accent: var(--accent);
+  --color-theme-accent-text: var(--accent-text);
+  --color-theme-accent-subtle: var(--accent-subtle);
+  --color-theme-accent-border: var(--accent-border);
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Smooth typography & UI base */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color-scheme: light dark;
+}
+
+/* Subtle sleek scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-main, rgba(148, 163, 184, 0.2));
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted, rgba(148, 163, 184, 0.4));
+}
+
+/* Hide scrollbars for clean horizontal pill lists */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom modern range styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+  cursor: grab;
+  margin-top: -5px;
+  transition: transform 0.15s ease, background 0.15s ease;
+  border: 2px solid var(--bg-card, #0f172a);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.25);
+  background: #34d399;
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+  cursor: grab;
+  border: 2px solid var(--bg-card, #0f172a);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+input[type="range"]:active::-moz-range-thumb {
+  cursor: grabbing;
+  transform: scale(1.25);
+  background: #34d399;
+}
+
+
