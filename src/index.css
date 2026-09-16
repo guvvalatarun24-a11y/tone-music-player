@@ -107,6 +107,46 @@ html {
   color-scheme: light dark;
 }
 
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(16,185,129,0.16), transparent 25%),
+    linear-gradient(180deg, #020817 0%, #040b1b 28%, #020617 100%);
+}
+
+.light body {
+  background:
+    radial-gradient(circle at top, rgba(16,185,129,0.14), transparent 22%),
+    linear-gradient(180deg, #f8fafc 0%, #eef4ff 42%, #f8fafc 100%);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+input {
+  touch-action: manipulation;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Subtle sleek scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

@@ -54,6 +54,7 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
   useEffect(() => {
     const audio = new Audio();
     audio.preload = 'auto';
+    audio.crossOrigin = 'anonymous';
     audioRef.current = audio;
 
     // Load persisted settings
@@ -81,6 +82,27 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
       }
     };
   }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = volume;
+    }
+  }, [volume]);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      const audio = audioRef.current;
+      if (!audio || !currentSongId) return;
+      if (document.visibilityState === 'hidden' && !audio.paused) {
+        // Keep playback active in the background; browsers handle the actual lifecycle.
+        audio.play().catch(() => undefined);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [currentSongId]);
 
   // Synchronize library with shuffle manager when song list changes
   // AND handle current song deletion / library clearing
@@ -112,21 +134,30 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
       if (!('mediaSession' in navigator) || !song) return;
 
       try {
+        const artworkSrc = song.coverArt || '/tone-logo.png';
+        const mimeType = song.coverArt?.startsWith('data:image/')
+          ? song.coverArt.match(/^data:(image\/[a-zA-Z0-9.+-]+);/)?.[1] || 'image/jpeg'
+          : 'image/png';
+
         navigator.mediaSession.metadata = new MediaMetadata({
           title: song.title,
           artist: song.artist,
           album: song.album,
-          artwork: song.coverArt
-            ? [
-                { src: song.coverArt, sizes: '96x96', type: 'image/png' },
-                { src: song.coverArt, sizes: '192x192', type: 'image/png' },
-                { src: song.coverArt, sizes: '512x512', type: 'image/png' },
-              ]
-            : [
-                { src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-                { src: '/pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-              ],
+          artwork: [
+            { src: artworkSrc, sizes: '96x96', type: mimeType },
+            { src: artworkSrc, sizes: '192x192', type: mimeType },
+            { src: artworkSrc, sizes: '512x512', type: mimeType },
+          ],
         });
+
+        const audio = audioRef.current;
+        if (audio) {
+          navigator.mediaSession.setPositionState({
+            duration: Number.isFinite(audio.duration) ? audio.duration : song.duration || 0,
+            position: Number.isFinite(audio.currentTime) ? audio.currentTime : 0,
+            playbackRate: 1,
+          });
+        }
       } catch (e) {
         console.warn('MediaSession metadata error:', e);
       }
@@ -337,6 +368,13 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
       if (!isSeekingRef.current) {
         setCurrentTime(audio.currentTime);
       }
+      if ('mediaSession' in navigator && currentSong) {
+        navigator.mediaSession.setPositionState({
+          duration: Number.isFinite(audio.duration) ? audio.duration : currentSong.duration || 0,
+          position: Number.isFinite(audio.currentTime) ? audio.currentTime : 0,
+          playbackRate: 1,
+        });
+      }
     };
 
     const onDurationChange = () => {
@@ -354,6 +392,13 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
       setIsPlaying(true);
       if ('mediaSession' in navigator) {
         navigator.mediaSession.playbackState = 'playing';
+        if (currentSong) {
+          navigator.mediaSession.setPositionState({
+            duration: Number.isFinite(audio.duration) ? audio.duration : currentSong.duration || 0,
+            position: Number.isFinite(audio.currentTime) ? audio.currentTime : 0,
+            playbackRate: 1,
+          });
+        }
       }
     };
 
@@ -402,6 +447,20 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
       });
       navigator.mediaSession.setActionHandler('nexttrack', () => {
         next();
+      });
+      navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+        const offset = details.seekOffset ?? 10;
+        const audio = audioRef.current;
+        if (!audio) return;
+        audio.currentTime = Math.max(0, audio.currentTime - offset);
+        setCurrentTime(audio.currentTime);
+      });
+      navigator.mediaSession.setActionHandler('seekforward', (details) => {
+        const offset = details.seekOffset ?? 10;
+        const audio = audioRef.current;
+        if (!audio) return;
+        audio.currentTime = Math.min(audio.duration || audio.currentTime + offset, audio.currentTime + offset);
+        setCurrentTime(audio.currentTime);
       });
       navigator.mediaSession.setActionHandler('seekto', (details) => {
         if (details.seekTime !== undefined && details.seekTime !== null) {

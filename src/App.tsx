@@ -14,7 +14,9 @@ import { Toast } from './components/Toast';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { PWAInstallButton } from './components/PWAInstallButton';
 import { getSetting, saveSetting } from './services/database';
-import { Disc3 } from 'lucide-react';
+import { Disc3, Search, Settings2 } from 'lucide-react';
+
+const BRAND_LOGO = '/tone-logo.png';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
@@ -115,7 +117,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),transparent_35%),linear-gradient(180deg,#f8fafc_0%,#f1f5f9_100%)] dark:bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),transparent_26%),linear-gradient(180deg,#020617_0%,#020817_100%)] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
       {/* Offline Status Pill */}
       <OfflineIndicator />
 
@@ -123,30 +125,45 @@ export default function App() {
       <Toast message={activeToast} onClose={handleClearToast} />
 
       {/* Top Header Bar */}
-      <header className="sticky top-0 z-20 bg-slate-50/85 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-900 px-4 py-3 transition-colors duration-200">
-        <div className="max-w-md mx-auto flex items-center justify-between">
+      <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/70 px-4 py-3 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-md items-center justify-between gap-3">
           <div
             onClick={() => setActiveTab('home')}
-            className="flex items-center gap-2 cursor-pointer group"
+            className="flex cursor-pointer items-center gap-3"
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 p-0.5 shadow-md shadow-emerald-500/20 group-hover:scale-105 transition">
-              <div className="w-full h-full bg-white dark:bg-slate-950 rounded-[10px] flex items-center justify-center transition-colors">
-                <Disc3 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 group-hover:rotate-45 transition-transform" />
-              </div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 shadow-[0_0_28px_rgba(139,92,246,0.2)]">
+              <img src={BRAND_LOGO} alt="Tone logo" className="h-11 w-11 object-contain" />
             </div>
-            <span className="font-extrabold tracking-tight text-slate-900 dark:text-white text-base">
-              <span className="text-emerald-600 dark:text-emerald-400">Tone</span>
-            </span>
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.26em] text-slate-400">Tone</div>
+              <div className="text-sm font-semibold text-white">Your Music. Your Way.</div>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab('library')}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:border-emerald-400/40 hover:text-emerald-300"
+              aria-label="Open library"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('settings')}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:border-emerald-400/40 hover:text-emerald-300"
+              aria-label="Open settings"
+            >
+              <Settings2 className="h-4 w-4" />
+            </button>
             <PWAInstallButton />
           </div>
         </div>
       </header>
 
       {/* Main View Container */}
-      <main className="flex-1 max-w-md mx-auto w-full px-4 pt-4 pb-12">
+      <main className="mx-auto flex w-full max-w-md flex-1 px-4 pb-12 pt-4">
         {activeTab === 'home' && (
           <Home
             songs={library.songs}

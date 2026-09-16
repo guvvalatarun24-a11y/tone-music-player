@@ -44,77 +44,49 @@ export const SongItem: React.FC<SongItemProps> = ({
     <div
       id={`song-row-${song.id}`}
       onClick={() => onPlay(song.id)}
-      className={`group relative flex items-center justify-between p-2.5 px-3 rounded-2xl cursor-pointer transition-all duration-150 border ${
+      className={`group relative flex cursor-pointer items-center justify-between rounded-[22px] border p-2.5 transition-all duration-200 ${
         isActive
-          ? 'bg-emerald-500/10 border-emerald-500/30 text-slate-900 dark:text-white shadow-[0_0_15px_rgba(16,185,129,0.08)]'
-          : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/60 border-slate-200 dark:border-slate-800/70 hover:border-slate-300 dark:hover:border-slate-700/80 text-slate-700 dark:text-slate-300 shadow-sm'
+          ? 'border-emerald-400/40 bg-emerald-500/10 shadow-[0_0_24px_rgba(16,185,129,0.14)]'
+          : 'border-white/8 bg-slate-900/80 hover:border-emerald-400/20 hover:bg-slate-800/90'
       }`}
     >
-      {/* Artwork + Info */}
-      <div className="flex items-center gap-3 min-w-0 pr-2">
-        <div className="relative w-11 h-11 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 border border-slate-200 dark:border-white/5 flex items-center justify-center">
+      <div className="flex min-w-0 items-center gap-3 pr-2">
+        <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-white/10 bg-slate-800 shadow-[0_8px_22px_rgba(2,6,23,0.55)]">
           {song.coverArt ? (
-            <img
-              src={song.coverArt}
-              alt=""
-              className="w-full h-full object-cover select-none"
-              referrerPolicy="no-referrer"
-            />
+            <img src={song.coverArt} alt={song.title} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
           ) : (
-            <Music className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <div className="flex h-full w-full items-center justify-center text-emerald-300">
+              <Music className="h-5 w-5" />
+            </div>
           )}
 
-          {/* Active / hover play icon overlay */}
-          <div
-            className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity ${
-              isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-            }`}
-          >
+          <div className={`absolute inset-0 flex items-center justify-center bg-black/35 transition-opacity ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
             {isActive && isPlaying ? (
-              <div className="flex items-end gap-[3px] h-3.5">
-                <span className="w-1 bg-emerald-400 rounded-full animate-[pulse_0.6s_ease-in-out_infinite] h-full" />
-                <span className="w-1 bg-emerald-300 rounded-full animate-[pulse_0.9s_ease-in-out_infinite_0.15s] h-2/3" />
-                <span className="w-1 bg-emerald-400 rounded-full animate-[pulse_0.75s_ease-in-out_infinite_0.3s] h-4/5" />
+              <div className="flex h-4 items-end gap-[3px]">
+                <span className="h-full w-1 rounded-full bg-emerald-300 animate-pulse" />
+                <span className="h-2/3 w-1 rounded-full bg-emerald-300 animate-pulse [animation-delay:120ms]" />
+                <span className="h-4/5 w-1 rounded-full bg-emerald-300 animate-pulse [animation-delay:240ms]" />
               </div>
             ) : (
-              <Play className="w-4 h-4 fill-white text-white ml-0.5" />
+              <Play className="ml-0.5 h-4 w-4 fill-white text-white" />
             )}
           </div>
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <h4
-              className={`text-sm font-semibold truncate leading-snug ${
-                isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-300'
-              }`}
-            >
-              {song.title}
-            </h4>
-            {song.isFavorite && (
-              <Star className="w-3 h-3 fill-amber-400 text-amber-400 shrink-0" />
-            )}
+            <h4 className={`truncate text-sm font-semibold ${isActive ? 'text-emerald-200' : 'text-white'}`}>{song.title}</h4>
+            {song.isFavorite && <Star className="h-3 w-3 fill-amber-400 text-amber-400" />}
           </div>
-
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+          <div className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-400">
             <span className="truncate">{song.artist}</span>
-            {song.isCleaned && (
-              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shrink-0">
-                <Sparkles className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
-                <span>Cleaned</span>
-              </span>
-            )}
+            {song.isCleaned && <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] uppercase tracking-[0.15em] text-emerald-200">Cleaned</span>}
           </div>
         </div>
       </div>
 
-      {/* Duration + Three-dot Menu */}
-      <div className="flex items-center gap-2 shrink-0 pl-1">
-        <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
-          {formatDuration(song.duration)}
-        </span>
-
-        {/* ⋮ More Button */}
+      <div className="flex items-center gap-2 pl-1">
+        <span className="text-[11px] font-mono text-slate-400">{formatDuration(song.duration)}</span>
         <div className="relative" ref={menuRef}>
           <button
             id={`more-menu-btn-${song.id}`}
@@ -123,67 +95,30 @@ export const SongItem: React.FC<SongItemProps> = ({
               e.stopPropagation();
               setShowMenu(!showMenu);
             }}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 transition active:scale-95"
+            className="rounded-xl p-2 text-slate-400 transition hover:bg-white/5 hover:text-white"
             title="Song options"
             aria-label="Song options"
           >
-            <MoreVertical className="w-4 h-4" />
+            <MoreVertical className="h-4 w-4" />
           </button>
 
-          {/* Popover Menu */}
           {showMenu && (
-            <div
-              className="absolute right-0 top-full mt-1 z-30 w-48 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 p-1.5 shadow-xl dark:shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Clean Audio option */}
+            <div className="absolute right-0 top-full z-30 mt-1 w-46 rounded-2xl border border-white/10 bg-slate-950/95 p-1.5 shadow-2xl backdrop-blur-xl" onClick={(e) => e.stopPropagation()}>
               {onCleanAudio && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowMenu(false);
-                    onCleanAudio(song);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10 dark:hover:bg-emerald-500/15 transition text-left"
-                >
-                  <Scissors className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <button type="button" onClick={() => { setShowMenu(false); onCleanAudio(song); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-emerald-200 transition hover:bg-emerald-500/10">
+                  <Scissors className="h-3.5 w-3.5" />
                   <span>Clean Audio</span>
                 </button>
               )}
-
-              {/* Add to / Remove from Favorites */}
               {onToggleFavorite && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowMenu(false);
-                    onToggleFavorite(song.id);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left"
-                >
-                  <Star
-                    className={`w-3.5 h-3.5 ${
-                      song.isFavorite
-                        ? 'fill-amber-400 text-amber-400'
-                        : 'text-slate-400'
-                    }`}
-                  />
+                <button type="button" onClick={() => { setShowMenu(false); onToggleFavorite(song.id); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-slate-200 transition hover:bg-white/5">
+                  <Star className={`h-3.5 w-3.5 ${song.isFavorite ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
                   <span>{song.isFavorite ? 'Remove Favorite' : 'Add to Favorites'}</span>
                 </button>
               )}
-
-              <div className="h-px bg-slate-200 dark:bg-slate-800 my-1" />
-
-              {/* Remove from Library */}
-              <button
-                type="button"
-                onClick={() => {
-                  setShowMenu(false);
-                  onRemove(song.id);
-                }}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 dark:hover:bg-rose-500/15 transition text-left"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
+              <div className="my-1 h-px bg-white/10" />
+              <button type="button" onClick={() => { setShowMenu(false); onRemove(song.id); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-rose-300 transition hover:bg-rose-500/10">
+                <Trash2 className="h-3.5 w-3.5" />
                 <span>Remove from Library</span>
               </button>
             </div>
