@@ -22,7 +22,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [isFullScreenOpen, setIsFullScreenOpen] = useState<boolean>(false);
-  const [theme, setTheme] = useState<'dark' | 'light' | 'system'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light' | 'system'>('system');
   const [keepOriginalFiles, setKeepOriginalFiles] = useState<boolean>(true);
 
   // Clean Audio Modal State
@@ -43,7 +43,7 @@ export default function App() {
 
   // Load and apply theme and settings
   useEffect(() => {
-    getSetting<'dark' | 'light' | 'system'>('theme', 'dark').then((savedTheme) => {
+    getSetting<'dark' | 'light' | 'system'>('theme', 'system').then((savedTheme) => {
       setTheme(savedTheme);
       applyTheme(savedTheme);
     });
@@ -68,19 +68,14 @@ export default function App() {
       isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
 
-    if (isDark) {
-      root.classList.add('dark');
-      root.classList.remove('light');
-      root.style.colorScheme = 'dark';
-    } else {
-      root.classList.remove('dark');
-      root.classList.add('light');
-      root.style.colorScheme = 'light';
-    }
+    root.dataset.theme = isDark ? 'dark' : 'light';
+    root.classList.toggle('dark', isDark);
+    root.classList.toggle('light', !isDark);
+    root.style.colorScheme = isDark ? 'dark' : 'light';
 
     const metaTheme = document.getElementById('meta-theme-color') || document.querySelector('meta[name="theme-color"]');
     if (metaTheme) {
-      metaTheme.setAttribute('content', isDark ? '#020617' : '#f8fafc');
+      metaTheme.setAttribute('content', isDark ? '#071A1F' : '#F6F7F5');
     }
   };
 
@@ -117,7 +112,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),transparent_35%),linear-gradient(180deg,#f8fafc_0%,#f1f5f9_100%)] dark:bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),transparent_26%),linear-gradient(180deg,#020617_0%,#020817_100%)] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen flex flex-col font-sans transition-colors duration-200" style={{ backgroundColor: 'var(--app-bg)', color: 'var(--text-main)' }}>
       {/* Offline Status Pill */}
       <OfflineIndicator />
 
@@ -125,26 +120,43 @@ export default function App() {
       <Toast message={activeToast} onClose={handleClearToast} />
 
       {/* Top Header Bar */}
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/70 px-4 py-3 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-md items-center justify-between gap-3">
+      <header className="sticky top-0 z-20 border-b px-3 py-3 backdrop-blur-xl sm:px-4" style={{ borderColor: 'var(--border)', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+        <div className="mx-auto grid max-w-[1200px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
           <div
             onClick={() => setActiveTab('home')}
-            className="flex cursor-pointer items-center gap-3"
+            className="flex min-w-0 cursor-pointer items-center justify-start"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 shadow-[0_0_28px_rgba(139,92,246,0.2)]">
-              <img src={BRAND_LOGO} alt="Tone logo" className="h-11 w-11 object-contain" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.26em] text-slate-400">Tone</div>
-              <div className="text-sm font-semibold text-white">Your Music. Your Way.</div>
-            </div>
+            <span
+              className="truncate text-[1.05rem] font-semibold tracking-[-0.04em]"
+              style={{ color: 'var(--text-main)' }}
+            >
+              Tone
+            </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center">
+            <span
+              aria-label="Tone brand mark"
+              className="select-none text-[2.4rem] font-black leading-none tracking-[-0.08em]"
+              style={{
+                color: '#00C98B',
+                fontStyle: 'italic',
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                textShadow: '0 0 12px rgba(0, 201, 139, 0.38), 0 0 24px rgba(0, 201, 139, 0.18)',
+                filter: 'drop-shadow(0 0 8px rgba(0, 201, 139, 0.35))',
+                transform: 'translateY(-1px)',
+              }}
+            >
+              t
+            </span>
+          </div>
+
+          <div className="flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => setActiveTab('library')}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:border-emerald-400/40 hover:text-emerald-300"
+              className="flex h-9 w-9 items-center justify-center rounded-full border transition hover:border-[#00C98B] hover:text-[#00C98B]"
+              style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)', color: 'var(--text-muted)' }}
               aria-label="Open library"
             >
               <Search className="h-4 w-4" />
@@ -152,18 +164,21 @@ export default function App() {
             <button
               type="button"
               onClick={() => setActiveTab('settings')}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:border-emerald-400/40 hover:text-emerald-300"
+              className="flex h-9 w-9 items-center justify-center rounded-full border transition hover:border-[#00C98B] hover:text-[#00C98B]"
+              style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)', color: 'var(--text-muted)' }}
               aria-label="Open settings"
             >
               <Settings2 className="h-4 w-4" />
             </button>
-            <PWAInstallButton />
+            <div className="hidden sm:block">
+              <PWAInstallButton />
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main View Container */}
-      <main className="mx-auto flex w-full max-w-md flex-1 px-4 pb-12 pt-4">
+      <main className="mx-auto flex w-full max-w-[1200px] flex-1 px-4 pb-12 pt-4 sm:px-5 lg:px-6">
         {activeTab === 'home' && (
           <Home
             songs={library.songs}

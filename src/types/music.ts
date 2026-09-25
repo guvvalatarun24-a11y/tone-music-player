@@ -9,6 +9,8 @@ export interface SongMetadata {
   type: string;
   dateAdded: number; // timestamp
   coverArt?: string; // data URL or generated gradient
+  coverArtBlob?: Blob | null;
+  coverArtMimeType?: string;
   isCleaned?: boolean;
   originalSongId?: string;
   isFavorite?: boolean;

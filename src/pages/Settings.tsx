@@ -50,22 +50,22 @@ export const Settings: React.FC<SettingsProps> = ({
   };
 
   return (
-    <div className="space-y-6 pb-28">
+    <div className="w-full space-y-6 pb-28">
       {/* Title */}
       <div className="pt-1">
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-[#111111] tracking-tight">
           Settings
         </h1>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+        <p className="mt-0.5 text-xs text-[#6B7280]">
           Playback preferences, audio cleanup rules, and local storage
         </p>
       </div>
 
       {/* PLAYBACK PREFERENCES */}
-      <div className="rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm">
-        <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800/80">
-          <Sliders className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+      <div className="rounded-3xl bg-white border border-[#E5E7EB] p-5 space-y-4 shadow-[0_12px_24px_rgba(15,23,42,0.03)]">
+        <div className="flex items-center gap-2 pb-2 border-b border-[#E5E7EB]">
+          <Sliders className="w-4 h-4 text-[#00C98B]" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#111111]">
             Playback
           </h2>
         </div>
@@ -73,8 +73,8 @@ export const Settings: React.FC<SettingsProps> = ({
         {/* Shuffle by default */}
         <div className="flex items-center justify-between">
           <div className="pr-4">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Shuffle by default</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <h3 className="text-sm font-semibold text-[#111111]">Shuffle by default</h3>
+            <p className="mt-0.5 text-xs text-[#6B7280]">
               Play your music in true randomized Fisher-Yates order
             </p>
           </div>
@@ -83,7 +83,7 @@ export const Settings: React.FC<SettingsProps> = ({
             type="button"
             onClick={onToggleShuffle}
             className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-              shuffleEnabled ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'
+              shuffleEnabled ? 'bg-[#00C98B]' : 'bg-[#E5E7EB]'
             }`}
           >
             <span
@@ -95,10 +95,10 @@ export const Settings: React.FC<SettingsProps> = ({
         </div>
 
         {/* Repeat Mode */}
-        <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/60">
+        <div className="flex items-center justify-between pt-2 border-t border-[#E5E7EB]">
           <div className="pr-4">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Repeat mode</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <h3 className="text-sm font-semibold text-[#111111]">Repeat mode</h3>
+            <p className="mt-0.5 text-xs text-[#6B7280]">
               Queue progression behavior at playlist conclusion
             </p>
           </div>
@@ -106,7 +106,7 @@ export const Settings: React.FC<SettingsProps> = ({
             id="settings-repeat-mode-btn"
             type="button"
             onClick={onCycleRepeat}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-slate-200 dark:hover:bg-slate-750 transition"
+            className="flex items-center gap-1.5 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-1.5 text-xs font-semibold text-[#00C98B] transition hover:bg-[#F3F4F6]"
           >
             <Repeat className="w-3.5 h-3.5" />
             <span>
@@ -121,10 +121,10 @@ export const Settings: React.FC<SettingsProps> = ({
       </div>
 
       {/* AUDIO CLEANUP PREFERENCES */}
-      <div className="rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm">
-        <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800/80">
-          <Scissors className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+      <div className="rounded-3xl bg-white border border-[#E5E7EB] p-5 space-y-4 shadow-[0_12px_24px_rgba(15,23,42,0.03)]">
+        <div className="flex items-center gap-2 pb-2 border-b border-[#E5E7EB]">
+          <Scissors className="w-4 h-4 text-[#00C98B]" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#111111]">
             Audio Cleanup
           </h2>
         </div>
@@ -132,8 +132,8 @@ export const Settings: React.FC<SettingsProps> = ({
         {/* Keep original files toggle */}
         <div className="flex items-center justify-between">
           <div className="pr-4">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Keep original files</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <h3 className="text-sm font-semibold text-[#111111]">Keep original files</h3>
+            <p className="mt-0.5 text-xs text-[#6B7280]">
               Never overwrite or delete original songs when generating cleaned copies
             </p>
           </div>
@@ -142,7 +142,7 @@ export const Settings: React.FC<SettingsProps> = ({
             type="button"
             onClick={() => onToggleKeepOriginalFiles(!keepOriginalFiles)}
             className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-              keepOriginalFiles ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'
+              keepOriginalFiles ? 'bg-[#00C98B]' : 'bg-[#E5E7EB]'
             }`}
           >
             <span
@@ -154,18 +154,18 @@ export const Settings: React.FC<SettingsProps> = ({
         </div>
 
         {/* Cleanup behavior info */}
-        <div className="pt-2 border-t border-slate-100 dark:border-slate-800/60 flex items-start gap-2.5 text-xs text-slate-500 dark:text-slate-400">
-          <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+        <div className="flex items-start gap-2.5 border-t border-[#E5E7EB] pt-2 text-xs text-[#6B7280]">
+          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#00C98B]" />
           <p className="leading-relaxed">
-            Cleaned versions are tagged with <span className="text-emerald-700 dark:text-emerald-300 font-semibold">✨ Cleaned</span> in your library. They can be shuffled, repeated, and played offline just like any other song.
+            Cleaned versions are tagged with <span className="font-semibold text-[#00C98B]">✨ Cleaned</span> in your library. They can be shuffled, repeated, and played offline just like any other song.
           </p>
         </div>
       </div>
 
       {/* APPEARANCE */}
-      <div className="rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm">
-        <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800/80">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+      <div className="rounded-3xl bg-white border border-[#E5E7EB] p-5 space-y-4 shadow-[0_12px_24px_rgba(15,23,42,0.03)]">
+        <div className="flex items-center gap-2 pb-2 border-b border-[#E5E7EB]">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#111111]">
             Appearance
           </h2>
         </div>
@@ -177,10 +177,10 @@ export const Settings: React.FC<SettingsProps> = ({
               id={`theme-btn-${mode}`}
               type="button"
               onClick={() => onThemeChange(mode)}
-              className={`py-2.5 px-3 rounded-2xl border text-xs font-medium capitalize flex items-center justify-center gap-1.5 transition ${
+              className={`flex items-center justify-center gap-1.5 rounded-2xl border px-3 py-2.5 text-xs font-medium capitalize transition ${
                 theme === mode
-                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-400 font-semibold shadow-xs'
-                  : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'border-[#00C98B]/30 bg-[#ECFDF5] text-[#00C98B] font-semibold'
+                  : 'border-[#E5E7EB] bg-[#F9FAFB] text-[#6B7280] hover:text-[#111111] hover:bg-[#F3F4F6]'
               }`}
             >
               {theme === mode && <Check className="w-3.5 h-3.5" />}
@@ -191,42 +191,42 @@ export const Settings: React.FC<SettingsProps> = ({
       </div>
 
       {/* STORAGE MANAGEMENT */}
-      <div className="rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm">
-        <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800/80">
-          <HardDrive className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+      <div className="rounded-3xl bg-white border border-[#E5E7EB] p-5 space-y-4 shadow-[0_12px_24px_rgba(15,23,42,0.03)]">
+        <div className="flex items-center gap-2 pb-2 border-b border-[#E5E7EB]">
+          <HardDrive className="w-4 h-4 text-[#00C98B]" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#111111]">
             Storage
           </h2>
         </div>
 
         <div className="space-y-3 text-sm">
-          <div className="flex items-center justify-between text-slate-700 dark:text-slate-300">
-            <span className="text-xs text-slate-500 dark:text-slate-400">Songs in library:</span>
-            <span className="font-mono font-semibold text-slate-900 dark:text-white">
+          <div className="flex items-center justify-between text-[#111111]">
+            <span className="text-xs text-[#6B7280]">Songs in library:</span>
+            <span className="font-mono font-semibold text-[#111111]">
               {storageStats.songCount}
             </span>
           </div>
 
-          <div className="flex items-center justify-between text-slate-700 dark:text-slate-300">
-            <span className="text-xs text-slate-500 dark:text-slate-400">Browser storage usage:</span>
-            <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">
+          <div className="flex items-center justify-between text-[#111111]">
+            <span className="text-xs text-[#6B7280]">Browser storage usage:</span>
+            <span className="font-mono font-semibold text-[#00C98B]">
               {storageStats.usageFormatted}
             </span>
           </div>
 
           {storageStats.quotaBytes > 0 && (
-            <div className="flex items-center justify-between text-slate-700 dark:text-slate-300">
-              <span className="text-xs text-slate-500 dark:text-slate-400">Browser storage quota:</span>
-              <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
+            <div className="flex items-center justify-between text-[#111111]">
+              <span className="text-xs text-[#6B7280]">Browser storage quota:</span>
+              <span className="font-mono text-xs text-[#6B7280]">
                 {storageStats.quotaFormatted}
               </span>
             </div>
           )}
 
           {storageStats.quotaBytes > 0 && (
-            <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1">
+            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#E5E7EB]">
               <div
-                className="bg-emerald-500 h-full rounded-full transition-all duration-300"
+                className="h-full rounded-full bg-[#00C98B] transition-all duration-300"
                 style={{
                   width: `${Math.min(
                     100,
@@ -245,7 +245,7 @@ export const Settings: React.FC<SettingsProps> = ({
             type="button"
             onClick={() => setShowClearConfirm(true)}
             disabled={storageStats.songCount === 0}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30 text-xs font-semibold transition active:scale-98 disabled:opacity-40 disabled:pointer-events-none"
+            className="w-full flex items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 py-2.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-500/20 active:scale-98 disabled:pointer-events-none disabled:opacity-40"
           >
             <Trash2 className="w-4 h-4" />
             <span>Clear Library</span>

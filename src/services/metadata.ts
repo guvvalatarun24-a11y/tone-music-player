@@ -1,6 +1,41 @@
 import { SongMetadata } from '../types/music';
 import { resolveAudioMimeType } from './audioDetector';
 
+function normalizeImageMimeType(value?: string): string {
+  const mime = (value || 'image/jpeg').trim().toLowerCase();
+  return mime.startsWith('image/') ? mime : 'image/jpeg';
+}
+
+function uint8ArrayToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  const chunkSize = 0x8000;
+
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += Array.from(chunk)
+      .map((byte) => String.fromCharCode(byte))
+      .join('');
+  }
+
+  return btoa(binary);
+}
+
+function createArtworkData(bytes: Uint8Array, mimeType?: string): {
+  coverArt: string;
+  coverArtBlob: Blob;
+  coverArtMimeType: string;
+} {
+  const normalizedMime = normalizeImageMimeType(mimeType);
+  const blob = new Blob([bytes], { type: normalizedMime });
+  const dataUrl = `data:${normalizedMime};base64,${uint8ArrayToBase64(bytes)}`;
+
+  return {
+    coverArt: dataUrl,
+    coverArtBlob: blob,
+    coverArtMimeType: normalizedMime,
+  };
+}
+
 // Generate a deterministic SVG cover art data URL based on title + artist
 export function generateCoverArt(title: string, artist: string): string {
   const seed = `${title}-${artist}`;
@@ -40,6 +75,28 @@ export function generateCoverArt(title: string, artist: string): string {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
+async function readId3HeaderBuffer(file: File): Promise<ArrayBuffer | null> {
+  if (file.size === 0) return null;
+
+  const headerSlice = await file.slice(0, 10).arrayBuffer();
+  if (headerSlice.byteLength < 10) return null;
+
+  const headerView = new DataView(headerSlice);
+  const id3 = String.fromCharCode(headerView.getUint8(0), headerView.getUint8(1), headerView.getUint8(2));
+  if (id3 !== 'ID3') return null;
+
+  const tagSize =
+    ((headerView.getUint8(6) & 0x7f) << 21) |
+    ((headerView.getUint8(7) & 0x7f) << 14) |
+    ((headerView.getUint8(8) & 0x7f) << 7) |
+    (headerView.getUint8(9) & 0x7f);
+
+  const totalTagBytes = Math.min(file.size, 10 + tagSize);
+  if (totalTagBytes <= 10) return null;
+
+  return file.slice(0, totalTagBytes).arrayBuffer();
+}
+
 /**
  * Parses ID3v2 tags from ArrayBuffer slice (TIT2, TPE1, TALB, APIC)
  */
@@ -48,11 +105,19 @@ async function parseID3Tags(buffer: ArrayBuffer): Promise<{
   artist?: string;
   album?: string;
   coverArt?: string;
+  coverArtBlob?: Blob;
+  coverArtMimeType?: string;
 }> {
-  const result: { title?: string; artist?: string; album?: string; coverArt?: string } = {};
+  const result: {
+    title?: string;
+    artist?: string;
+    album?: string;
+    coverArt?: string;
+    coverArtBlob?: Blob;
+    coverArtMimeType?: string;
+  } = {};
   const view = new DataView(buffer);
 
-  // Check ID3v2 header
   if (buffer.byteLength < 10) return result;
   const id3 = String.fromCharCode(view.getUint8(0), view.getUint8(1), view.getUint8(2));
   if (id3 !== 'ID3') return result;
@@ -77,14 +142,12 @@ async function parseID3Tags(buffer: ArrayBuffer): Promise<{
 
     let frameSize = 0;
     if (version === 4) {
-      // synchsafe int in v2.4
       frameSize =
         ((view.getUint8(offset + 4) & 0x7f) << 21) |
         ((view.getUint8(offset + 5) & 0x7f) << 14) |
         ((view.getUint8(offset + 6) & 0x7f) << 7) |
         (view.getUint8(offset + 7) & 0x7f);
     } else {
-      // standard 32-bit int in v2.3
       frameSize = view.getUint32(offset + 4);
     }
 
@@ -92,7 +155,6 @@ async function parseID3Tags(buffer: ArrayBuffer): Promise<{
 
     const frameDataOffset = offset + 10;
 
-    // Text frames
     if (['TIT2', 'TPE1', 'TALB'].includes(frameId)) {
       try {
         const encoding = view.getUint8(frameDataOffset);
@@ -113,32 +175,33 @@ async function parseID3Tags(buffer: ArrayBuffer): Promise<{
       }
     } else if (frameId === 'APIC') {
       try {
-        // Attached Picture
-        let picOffset = frameDataOffset + 1; // skip encoding
-        let mimeType = '';
-        while (picOffset < frameDataOffset + frameSize && view.getUint8(picOffset) !== 0) {
-          mimeType += String.fromCharCode(view.getUint8(picOffset));
-          picOffset++;
-        }
-        picOffset++; // skip 0
-        picOffset++; // skip picture type (1 byte)
-        // skip description until 0
-        while (picOffset < frameDataOffset + frameSize && view.getUint8(picOffset) !== 0) {
-          picOffset++;
-        }
-        picOffset++; // skip description null terminator
+        const payload = new Uint8Array(buffer, frameDataOffset, frameSize);
+        if (payload.length < 2) continue;
 
-        const picBytes = new Uint8Array(buffer, picOffset, frameDataOffset + frameSize - picOffset);
-        if (picBytes.length > 0) {
-          // Convert to base64 data URL so artwork persists across sessions in IndexedDB
-          const mime = mimeType || 'image/jpeg';
-          let binary = '';
-          const len = picBytes.byteLength;
-          for (let i = 0; i < len; i++) {
-            binary += String.fromCharCode(picBytes[i]);
-          }
-          const base64 = btoa(binary);
-          result.coverArt = `data:${mime};base64,${base64}`;
+        const encoding = payload[0];
+        let mimeEnd = 1;
+        while (mimeEnd < payload.length && payload[mimeEnd] !== 0) mimeEnd++;
+        if (mimeEnd >= payload.length) continue;
+
+        const mimeType = new TextDecoder('latin1').decode(payload.subarray(1, mimeEnd));
+        let cursor = mimeEnd + 1;
+        cursor += 1;
+
+        while (cursor < payload.length && payload[cursor] !== 0) cursor++;
+        if (cursor < payload.length) cursor++;
+
+        if (cursor >= payload.length) continue;
+
+        const imageBytes = payload.subarray(cursor);
+        if (encoding === 0 || encoding === 3) {
+          // Some encoders write a UTF-8 encoded picture description before the binary payload; strip the description if present.
+        }
+
+        if (imageBytes.length > 0) {
+          const artwork = createArtworkData(imageBytes, mimeType || 'image/jpeg');
+          result.coverArt = artwork.coverArt;
+          result.coverArtBlob = artwork.coverArtBlob;
+          result.coverArtMimeType = artwork.coverArtMimeType;
         }
       } catch {
         // Continue on artwork error
@@ -225,13 +288,20 @@ export async function extractMetadataFromFile(
   knownDuration?: number
 ): Promise<Omit<SongMetadata, 'id' | 'dateAdded'>> {
   const fallback = parseFilename(file.name);
-  let id3: { title?: string; artist?: string; album?: string; coverArt?: string } = {};
+  let id3: {
+    title?: string;
+    artist?: string;
+    album?: string;
+    coverArt?: string;
+    coverArtBlob?: Blob;
+    coverArtMimeType?: string;
+  } = {};
 
   try {
-    // Read first 128KB for ID3 header
-    const headerSlice = file.slice(0, 131072);
-    const buffer = await headerSlice.arrayBuffer();
-    id3 = await parseID3Tags(buffer);
+    const buffer = await readId3HeaderBuffer(file);
+    if (buffer) {
+      id3 = await parseID3Tags(buffer);
+    }
   } catch {
     // Ignore and use fallback
   }
@@ -256,6 +326,8 @@ export async function extractMetadataFromFile(
     size: file.size,
     type: resolvedType,
     coverArt,
+    coverArtBlob: id3.coverArtBlob || null,
+    coverArtMimeType: id3.coverArtMimeType || (coverArt.startsWith('data:image/') ? coverArt.match(/^data:(image\/[a-zA-Z0-9.+-]+);/)?.[1] || 'image/jpeg' : 'image/png'),
   };
 }
 

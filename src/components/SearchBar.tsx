@@ -14,8 +14,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
   return (
     <div className="relative w-full">
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-        <Search className="h-4 w-4 text-emerald-300" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#6B7280]">
+        <Search className="h-4 w-4 text-[#00C98B]" />
       </div>
       <input
         id="library-search-input"
@@ -23,12 +23,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-full border border-white/10 bg-slate-900/80 py-3 pl-11 pr-11 text-sm text-white placeholder:text-slate-400 focus:border-emerald-400/60 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
+        className="w-full rounded-full border border-[#E5E7EB] bg-white py-3 pl-11 pr-11 text-sm text-[#111111] placeholder:text-[#6B7280] focus:border-[#00C98B] focus:outline-none focus:ring-2 focus:ring-[#00C98B]/15"
       />
       {value && (
         <button
           onClick={() => onChange('')}
-          className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 transition hover:text-white"
+          className="absolute inset-y-0 right-0 flex items-center pr-4 text-[#6B7280] transition hover:text-[#111111]"
           title="Clear search"
         >
           <X className="h-4 w-4" />

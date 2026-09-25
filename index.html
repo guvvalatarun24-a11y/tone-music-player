@@ -18,6 +18,23 @@
     <link rel="icon" type="image/png" href="/tone-logo.png" />
     <link rel="alternate icon" type="image/png" href="/tone-logo.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <script>
+      (function() {
+        try {
+          const storedTheme = localStorage.getItem('tone-theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = storedTheme === 'dark' || storedTheme === 'light' ? storedTheme : (storedTheme === 'system' || !storedTheme ? 'system' : 'system');
+          const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
+          const root = document.documentElement;
+          root.dataset.theme = isDark ? 'dark' : 'light';
+          root.style.colorScheme = isDark ? 'dark' : 'light';
+          const metaTheme = document.getElementById('meta-theme-color');
+          if (metaTheme) metaTheme.setAttribute('content', isDark ? '#071A1F' : '#F6F7F5');
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
   </head>
   <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased select-none selection:bg-emerald-500 selection:text-black min-h-screen overflow-x-hidden transition-colors duration-200">
     <div id="root"></div>

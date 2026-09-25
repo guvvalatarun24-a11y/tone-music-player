@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { SongMetadata, RepeatMode } from '../types/music';
 import { getSongAudioBlob, saveSetting, getSetting } from '../services/database';
+import { parseFilename } from '../services/metadata';
 import { SmartShuffleManager } from '../services/shuffle';
 
 export interface UseAudioPlayerProps {
@@ -128,21 +129,47 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
     }
   }, []);
 
+  const syncMediaPositionState = useCallback(() => {
+    if (!('mediaSession' in navigator)) return;
+
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const rawDuration = Number(audio.duration);
+    const duration = Number.isFinite(rawDuration) && rawDuration > 0 ? rawDuration : currentSong?.duration || 0;
+    if (!Number.isFinite(duration) || duration <= 0) return;
+
+    const rawPosition = Number(audio.currentTime);
+    const safePosition = Number.isFinite(rawPosition) ? Math.min(Math.max(rawPosition, 0), duration) : 0;
+    const playbackRate = Number.isFinite(audio.playbackRate) && audio.playbackRate > 0 ? audio.playbackRate : 1;
+
+    navigator.mediaSession.setPositionState({
+      duration,
+      position: safePosition,
+      playbackRate,
+    });
+  }, [currentSong]);
+
   // Update Media Session API
   const updateMediaSession = useCallback(
     (song: SongMetadata | null) => {
       if (!('mediaSession' in navigator) || !song) return;
 
       try {
+        const filenameFallback = parseFilename(song.filename || 'unknown.mp3');
+        const safeTitle = (song.title || '').trim() || filenameFallback.title || 'Unknown Title';
+        const safeArtist = (song.artist || '').trim() || filenameFallback.artist || 'Unknown Artist';
+        const safeAlbum = (song.album || '').trim() || 'Unknown Album';
         const artworkSrc = song.coverArt || '/tone-logo.png';
-        const mimeType = song.coverArt?.startsWith('data:image/')
-          ? song.coverArt.match(/^data:(image\/[a-zA-Z0-9.+-]+);/)?.[1] || 'image/jpeg'
-          : 'image/png';
+        const mimeType = song.coverArtMimeType ||
+          (song.coverArt?.startsWith('data:image/')
+            ? song.coverArt.match(/^data:(image\/[a-zA-Z0-9.+-]+);/)?.[1] || 'image/jpeg'
+            : 'image/png');
 
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: song.title,
-          artist: song.artist,
-          album: song.album,
+        const metadata = new MediaMetadata({
+          title: safeTitle,
+          artist: safeArtist,
+          album: safeAlbum,
           artwork: [
             { src: artworkSrc, sizes: '96x96', type: mimeType },
             { src: artworkSrc, sizes: '192x192', type: mimeType },
@@ -150,19 +177,13 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
           ],
         });
 
-        const audio = audioRef.current;
-        if (audio) {
-          navigator.mediaSession.setPositionState({
-            duration: Number.isFinite(audio.duration) ? audio.duration : song.duration || 0,
-            position: Number.isFinite(audio.currentTime) ? audio.currentTime : 0,
-            playbackRate: 1,
-          });
-        }
+        navigator.mediaSession.metadata = metadata;
+        syncMediaPositionState();
       } catch (e) {
         console.warn('MediaSession metadata error:', e);
       }
     },
-    []
+    [syncMediaPositionState]
   );
 
   // Play a specific song ID
@@ -210,6 +231,10 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
         shuffleManagerRef.current.selectTrack(songId);
 
         updateMediaSession(targetSong);
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.playbackState = 'waiting';
+          syncMediaPositionState();
+        }
 
         if (autoPlay) {
           try {
@@ -345,9 +370,16 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
   const seek = useCallback((targetSeconds: number) => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.currentTime = targetSeconds;
-    setCurrentTime(targetSeconds);
-  }, []);
+
+    const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : currentSong?.duration || 0;
+    const safeTarget = Number.isFinite(targetSeconds) ? Math.min(Math.max(targetSeconds, 0), duration) : 0;
+
+    audio.currentTime = safeTarget;
+    setCurrentTime(safeTarget);
+    if ('mediaSession' in navigator) {
+      syncMediaPositionState();
+    }
+  }, [currentSong, syncMediaPositionState]);
 
   // Set Volume (0 to 1)
   const setVolume = useCallback((val: number) => {
@@ -361,6 +393,12 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
 
   // Wire up audio event listeners
   useEffect(() => {
+    if ('mediaSession' in navigator && currentSong) {
+      updateMediaSession(currentSong);
+    }
+  }, [currentSong, updateMediaSession]);
+
+  useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -368,18 +406,26 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
       if (!isSeekingRef.current) {
         setCurrentTime(audio.currentTime);
       }
-      if ('mediaSession' in navigator && currentSong) {
-        navigator.mediaSession.setPositionState({
-          duration: Number.isFinite(audio.duration) ? audio.duration : currentSong.duration || 0,
-          position: Number.isFinite(audio.currentTime) ? audio.currentTime : 0,
-          playbackRate: 1,
-        });
+      if ('mediaSession' in navigator) {
+        syncMediaPositionState();
       }
     };
 
     const onDurationChange = () => {
       if (isFinite(audio.duration)) {
         setDuration(audio.duration);
+        if ('mediaSession' in navigator) {
+          syncMediaPositionState();
+        }
+      }
+    };
+
+    const onLoadedMetadata = () => {
+      if (isFinite(audio.duration)) {
+        setDuration(audio.duration);
+      }
+      if ('mediaSession' in navigator) {
+        syncMediaPositionState();
       }
     };
 
@@ -391,14 +437,11 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
     const onPlay = () => {
       setIsPlaying(true);
       if ('mediaSession' in navigator) {
-        navigator.mediaSession.playbackState = 'playing';
         if (currentSong) {
-          navigator.mediaSession.setPositionState({
-            duration: Number.isFinite(audio.duration) ? audio.duration : currentSong.duration || 0,
-            position: Number.isFinite(audio.currentTime) ? audio.currentTime : 0,
-            playbackRate: 1,
-          });
+          updateMediaSession(currentSong);
         }
+        navigator.mediaSession.playbackState = 'playing';
+        syncMediaPositionState();
       }
     };
 
@@ -406,6 +449,7 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
       setIsPlaying(false);
       if ('mediaSession' in navigator) {
         navigator.mediaSession.playbackState = 'paused';
+        syncMediaPositionState();
       }
     };
 
@@ -416,6 +460,7 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('durationchange', onDurationChange);
+    audio.addEventListener('loadedmetadata', onLoadedMetadata);
     audio.addEventListener('ended', onEnded);
     audio.addEventListener('play', onPlay);
     audio.addEventListener('pause', onPause);
@@ -424,12 +469,13 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('durationchange', onDurationChange);
+      audio.removeEventListener('loadedmetadata', onLoadedMetadata);
       audio.removeEventListener('ended', onEnded);
       audio.removeEventListener('play', onPlay);
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('error', onError);
     };
-  }, [next]);
+  }, [next, currentSong, syncMediaPositionState, updateMediaSession]);
 
   // Register Media Session action handlers
   useEffect(() => {
@@ -452,15 +498,20 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
         const offset = details.seekOffset ?? 10;
         const audio = audioRef.current;
         if (!audio) return;
-        audio.currentTime = Math.max(0, audio.currentTime - offset);
-        setCurrentTime(audio.currentTime);
+        const nextTime = Math.max(0, audio.currentTime - offset);
+        audio.currentTime = nextTime;
+        setCurrentTime(nextTime);
+        syncMediaPositionState();
       });
       navigator.mediaSession.setActionHandler('seekforward', (details) => {
         const offset = details.seekOffset ?? 10;
         const audio = audioRef.current;
         if (!audio) return;
-        audio.currentTime = Math.min(audio.duration || audio.currentTime + offset, audio.currentTime + offset);
-        setCurrentTime(audio.currentTime);
+        const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : currentSong?.duration || 0;
+        const nextTime = Math.min(duration, audio.currentTime + offset);
+        audio.currentTime = nextTime;
+        setCurrentTime(nextTime);
+        syncMediaPositionState();
       });
       navigator.mediaSession.setActionHandler('seekto', (details) => {
         if (details.seekTime !== undefined && details.seekTime !== null) {
@@ -470,7 +521,7 @@ export function useAudioPlayer({ songs, onStopPlayback }: UseAudioPlayerProps) {
     } catch (e) {
       console.warn('MediaSession action handler error:', e);
     }
-  }, [togglePlay, previous, next, seek]);
+  }, [togglePlay, previous, next, seek, syncMediaPositionState, currentSong]);
 
   const queuePreview = shuffleManagerRef.current.getQueuePreview(6);
 

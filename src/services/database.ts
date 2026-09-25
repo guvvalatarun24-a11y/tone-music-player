@@ -163,6 +163,12 @@ export async function getAllSongsMetadata(): Promise<SongMetadata[]> {
           type: val.type,
           dateAdded: val.dateAdded,
           coverArt: val.coverArt,
+          coverArtBlob: val.coverArtBlob instanceof Blob ? val.coverArtBlob : undefined,
+          coverArtMimeType:
+            val.coverArtMimeType ||
+            (typeof val.coverArt === 'string' && val.coverArt.startsWith('data:image/')
+              ? val.coverArt.match(/^data:(image\/[a-zA-Z0-9.+-]+);/)?.[1] || 'image/jpeg'
+              : undefined),
           isCleaned: val.isCleaned,
           originalSongId: val.originalSongId,
           isFavorite: val.isFavorite,

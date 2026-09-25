@@ -69,19 +69,19 @@ export const Library: React.FC<LibraryProps> = ({
   const favoriteCount = songs.filter((s) => s.isFavorite).length;
 
   return (
-    <div className="space-y-4 pb-28">
-      <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.95),rgba(2,6,23,0.96))] p-4 shadow-[0_28px_60px_rgba(2,6,23,0.7)]">
+    <div className="w-full space-y-4 pb-28">
+      <div className="rounded-[26px] border border-[#E5E7EB] bg-white p-4 shadow-[0_12px_24px_rgba(15,23,42,0.04)]">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.26em] text-slate-400">Your library</p>
-            <h1 className="mt-1 text-2xl font-black tracking-[-0.06em] text-white">Tone</h1>
+            <p className="text-[10px] uppercase tracking-[0.26em] text-[#6B7280]">Your library</p>
+            <h1 className="mt-1 text-2xl font-black tracking-[-0.06em] text-[#111111]">Tone</h1>
           </div>
           <div className="flex items-center gap-2">
             {totalSongCount > 0 && (
               <button
                 id="library-shuffle-all-btn"
                 onClick={onShuffleAll}
-                className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-[11px] font-semibold text-emerald-200 transition hover:bg-emerald-500/20"
+                className="rounded-full border border-[#00C98B]/20 bg-[#ECFDF5] px-3 py-2 text-[11px] font-semibold text-[#00C98B] transition hover:bg-[#dcfce7]"
               >
                 Shuffle
               </button>
@@ -89,18 +89,18 @@ export const Library: React.FC<LibraryProps> = ({
             <button
               id="library-add-songs-btn"
               onClick={onOpenAddModal}
-              className="rounded-full bg-emerald-400 px-3 py-2 text-[11px] font-bold text-slate-950 transition hover:bg-emerald-300"
+              className="rounded-full bg-[#00C98B] px-3 py-2 text-[11px] font-bold text-white transition hover:bg-[#00b67d]"
             >
               + Add
             </button>
           </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-3 text-sm text-slate-300">
-          <div className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-slate-300">
+        <div className="mt-4 flex items-center gap-3 text-sm text-[#6B7280]">
+          <div className="rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[#6B7280]">
             {totalSongCount} songs
           </div>
-          <div className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-slate-300">
+          <div className="rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[#6B7280]">
             Offline ready
           </div>
         </div>
@@ -122,8 +122,8 @@ export const Library: React.FC<LibraryProps> = ({
                 onClick={() => setFilterTab(tab as 'all' | 'cleaned' | 'favorites')}
                 className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
                   filterTab === tab
-                    ? 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200'
-                    : 'border-white/10 bg-slate-900/80 text-slate-300 hover:border-white/20'
+                    ? 'border-[#00C98B]/30 bg-[#ECFDF5] text-[#00C98B]'
+                    : 'border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#00C98B]/30 hover:text-[#111111]'
                 }`}
               >
                 {label}
@@ -131,23 +131,23 @@ export const Library: React.FC<LibraryProps> = ({
             ))}
           </div>
 
-          <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/80 px-3 py-2 text-xs text-slate-300">
+          <div className="flex items-center justify-between rounded-2xl border border-[#E5E7EB] bg-white px-3 py-2 text-xs text-[#6B7280]">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">Sort</span>
-              <div className="flex items-center gap-1 rounded-full border border-white/10 bg-slate-950/60 p-1">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-[#6B7280]">Sort</span>
+              <div className="flex items-center gap-1 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] p-1">
                 {['dateAdded', 'title', 'artist'].map((opt) => (
                   <button
                     key={opt}
                     id={`sort-by-${opt}`}
                     onClick={() => onSortOptionChange(opt as SortOption)}
-                    className={`rounded-full px-2 py-1 transition ${sortOption === opt ? 'bg-emerald-500/20 text-emerald-200' : 'text-slate-400'}`}
+                    className={`rounded-full px-2 py-1 transition ${sortOption === opt ? 'bg-[#ECFDF5] text-[#00C98B]' : 'text-[#6B7280]'}`}
                   >
                     {opt === 'dateAdded' ? 'Added' : opt === 'title' ? 'Title' : 'Artist'}
                   </button>
                 ))}
               </div>
             </div>
-            <button id="toggle-sort-direction" onClick={onToggleSortDirection} className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-slate-300">
+            <button id="toggle-sort-direction" onClick={onToggleSortDirection} className="rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-[#111111]">
               {sortDirection}
             </button>
           </div>
@@ -170,19 +170,19 @@ export const Library: React.FC<LibraryProps> = ({
           ))}
         </div>
       ) : totalSongCount > 0 ? (
-        <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-6 text-center text-sm text-slate-300">
+        <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-6 text-center text-sm text-[#6B7280] shadow-[0_12px_24px_rgba(15,23,42,0.03)]">
           No songs match your current filter.
         </div>
       ) : (
-        <div id="empty-library-view" className="rounded-[28px] border border-dashed border-white/10 bg-slate-900/70 p-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[22px] border border-emerald-400/20 bg-emerald-500/10 text-emerald-300">
+        <div id="empty-library-view" className="rounded-[24px] border border-dashed border-[#D1D5DB] bg-white p-8 text-center shadow-[0_12px_24px_rgba(15,23,42,0.03)]">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[22px] border border-[#00C98B]/20 bg-[#ECFDF5] text-[#00C98B]">
             <Music className="h-8 w-8" />
           </div>
-          <h3 className="text-xl font-bold text-white">No songs in library</h3>
-          <p className="mt-2 text-sm text-slate-400">Add tracks from your device to start enjoying Tone.</p>
+          <h3 className="text-xl font-bold text-[#111111]">No songs in library</h3>
+          <p className="mt-2 text-sm text-[#6B7280]">Add tracks from your device to start enjoying Tone.</p>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <button id="empty-add-songs-btn" onClick={onOpenAddModal} className="rounded-full bg-emerald-400 px-4 py-2.5 text-sm font-bold text-slate-950">+ Add Songs</button>
-            <button id="empty-sample-songs-btn" onClick={onLoadSampleTracks} className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-emerald-200">Demo tracks</button>
+            <button id="empty-add-songs-btn" onClick={onOpenAddModal} className="rounded-full bg-[#00C98B] px-4 py-2.5 text-sm font-bold text-white">+ Add Songs</button>
+            <button id="empty-sample-songs-btn" onClick={onLoadSampleTracks} className="rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-2.5 text-sm font-semibold text-[#00C98B]">Demo tracks</button>
           </div>
         </div>
       )}
