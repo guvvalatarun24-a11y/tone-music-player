@@ -1,8 +1,6 @@
 {
   "name": "Tone",
-  "description": "Smart shuffle offline-first music player that stores and plays your local songs with true Fisher-Yates shuffle and local audio speech cleanup.",
+  "description": "Offline-first local music player PWA — Your Music. Your Way.",
   "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
+  "majorCapabilities": []
 }

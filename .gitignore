@@ -6,3 +6,11 @@ coverage/
 *.log
 .env*
 !.env.example
+*.db
+*.sqlite
+*.sqlite3
+*.mp3
+*.wav
+*.flac
+*.m4a
+*.aac
